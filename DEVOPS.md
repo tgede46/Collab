@@ -15,7 +15,7 @@ make status
 # 4. Accéder à l'application
 open http://localhost:8080
 ```
-
+   
 ## 📦 Structure DevOps créée
 
 ```

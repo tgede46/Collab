@@ -35,3 +35,31 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Docker ###
+.env
+.env.local
+.env.*.local
+docker-compose.override.yaml
+*.log
+
+### Backups ###
+backups/
+*.sql.gz
+*.sql
+
+### IDE ###
+*.swp
+*.swo
+*~
+.DS_Store
+
+### Gitflow ###
+gitflow/
+gitflow-installer.sh
+
+### Scripts ###
+start.sh
+stop.sh
+logs.sh
+health-check.sh

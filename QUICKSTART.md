@@ -48,17 +48,14 @@ docker compose down
 ### Développement quotidien
 
 ```bash
-# Formater le code avant commit
-make format
-
-# Vérifier le formatage
-make format-check
-
 # Redémarrer l'application
 make restart
 
 # Nettoyer et reconstruire
 make clean build
+
+# Compiler l'application
+make build
 ```
 
 ### Debug
@@ -87,28 +84,13 @@ docker exec -it collab-postgres psql -U admin -d collab
 ### Avant chaque commit
 
 ```bash
-# 1. Formater le code
-make format
-
-# 2. Vérifier que tout compile
+# 1. Vérifier que tout compile
 make build
 
-# 3. Faire le commit
+# 2. Faire le commit
 git add .
 git commit -m "feat: votre message"
 ```
-
-💡 **Astuce**: Installez les hooks Git pour automatiser cela :
-
-```bash
-make install-hooks
-```
-
-Les hooks vont automatiquement :
-
-- ✅ Formater votre code avec Prettier
-- ✅ Vérifier la syntaxe Gradle
-- ✅ Valider les fichiers YAML
 
 ### Créer une Pull Request
 
@@ -123,7 +105,7 @@ Les hooks vont automatiquement :
 2. Développer et commiter
 
    ```bash
-   make format
+   make build
    git add .
    git commit -m "feat: ma fonctionnalité"
    ```
@@ -135,7 +117,6 @@ Les hooks vont automatiquement :
    ```
 
 4. La CI va automatiquement :
-   - ✅ Vérifier le formatage Prettier
    - ✅ Builder l'application
    - ✅ Tester avec Docker Compose
    - ✅ Scanner les vulnérabilités
@@ -168,7 +149,7 @@ Tapez `make help` pour voir toutes les commandes disponibles.
 # Dans compose.yaml
 postgres:
   ports:
-    - '5433:5432' # 5433 sur l'hôte, 5432 dans le conteneur
+    - "5433:5432" # 5433 sur l'hôte, 5432 dans le conteneur
 ```
 
 ### L'application ne démarre pas
@@ -182,17 +163,7 @@ make clean
 make start
 ```
 
-### Problème de formatage
-
-```bash
-# Réinstaller Prettier
-make install-prettier
-
-# Formater tout
-make format
-```
-
-### Erreur de connexion à la base de données
+### Problème de connexion à la base de données
 
 ```bash
 # Vérifier que PostgreSQL est démarré

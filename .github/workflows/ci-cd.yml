@@ -11,27 +11,6 @@ env:
   IMAGE_NAME: collab-app
 
 jobs:
-  format-check:
-    name: 🎨 Format Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: 📦 Install dependencies
-        run: npm install
-
-      - name: 🎨 Check formatting with Prettier
-        run: npx prettier --check .
-        continue-on-error: true
-
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest

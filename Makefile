@@ -12,7 +12,7 @@ help: ## Afficher l'aide
 	@echo "  make start          → Démarrer tous les services"
 	@echo "  make stop           → Arrêter tous les services"
 	@echo "  make logs           → Voir les logs"
-	@echo "  make format         → Formater le code avant commit"
+	@echo "  make build          → Compiler l'application"
 	@echo ""
 	@echo "📋 Toutes les commandes:"
 	@echo ""
@@ -132,21 +132,6 @@ lint: ## Vérifier le code avec Gradle
 watch: ## Suivre les logs en temps réel
 	$(COMPOSE) logs -f --tail=100
 
-format: ## Formater le code avec Prettier
-	@echo "🎨 Formatage du code..."
-	@npx prettier --write .
-	@echo "✅ Code formaté!"
-
-format-check: ## Vérifier le formatage (sans modifier)
-	@echo "🎨 Vérification du formatage..."
-	@npx prettier --check .
-	@echo "✅ Formatage vérifié!"
-
-install-prettier: ## Installer Prettier localement
-	@echo "📦 Installation de Prettier..."
-	@npm install
-	@echo "✅ Prettier installé!"
-
 stats: ## Afficher les statistiques des conteneurs
 	docker stats collab-app collab-postgres collab-kafka collab-zookeeper
 
@@ -156,14 +141,10 @@ network: ## Afficher les informations réseau
 volumes: ## Lister les volumes
 	docker volume ls | grep collab
 
-install-hooks: ## Installer les git hooks (pre-commit avec Prettier)
-	@echo "🪝 Installation des git hooks..."
-	@bash scripts/install-hooks.sh
-
 ci: build test-docker ## Simulation CI local (build + test)
 	@echo "✅ Pipeline CI local terminé!"
 
-validate-all: format-check check lint ## Validation complète (format + syntaxe + lint)
+validate-all: lint ## Validation complète (syntaxe + lint)
 	@echo "✅ Toutes les validations passées!"
 
 all: clean build up logs ## Tout reconstruire et afficher les logs

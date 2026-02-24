@@ -1,8 +1,6 @@
 # 🚀 Collab - Application Spring Boot
 
 ![CI/CD](https://github.com/VOTRE_USERNAME/Collab/workflows/CI/CD%20Pipeline/badge.svg)
-![Prettier](https://github.com/VOTRE_USERNAME/Collab/workflows/Prettier%20Check/badge.svg)
-![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat&logo=prettier)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-green.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
@@ -34,8 +32,8 @@ make start
 # Voir les logs
 make logs
 
-# Formater le code
-make format
+# Compiler l'application
+make build
 
 # Arrêter l'application
 make stop

@@ -36,24 +36,6 @@ else
 fi
 
 echo ""
-
-# Installer Prettier
-if [ ! -d node_modules ]; then
-    echo "📦 Installation de Prettier..."
-    npm install
-    echo "✅ Prettier installé"
-else
-    echo "✅ Prettier déjà installé"
-fi
-
-echo ""
-
-# Installer les git hooks
-echo "🪝 Installation des git hooks..."
-make install-hooks
-echo "✅ Git hooks installés"
-
-echo ""
 echo "🎉 Installation terminée !"
 echo ""
 echo "🚀 Pour démarrer l'application:"

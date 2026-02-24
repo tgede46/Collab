@@ -12,9 +12,8 @@ make logs           # Voir les logs
 ## 💻 Développement
 
 ```bash
-make format         # Formater le code avant commit
-make format-check   # Vérifier le formatage
 make build          # Compiler l'application
+make lint           # Vérifier le code
 make health         # Vérifier que ça tourne
 ```
 
@@ -39,7 +38,6 @@ docker compose ps   # Voir tous les conteneurs
 ```bash
 make clean          # Tout nettoyer
 make rebuild        # Reconstruire de zéro
-make install-hooks  # Installer les git hooks
 ```
 
 ## 📊 Infos

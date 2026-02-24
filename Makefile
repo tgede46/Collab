@@ -6,10 +6,27 @@ APP_NAME=collab-app
 DB_NAME=collab-postgres
 
 help: ## Afficher l'aide
-	@echo "📋 Commandes disponibles pour Collab:"
+	@echo "� Collab - Commandes Rapides"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo "⚡ ESSENTIELLES (pour débuter):"
+	@echo "  make start          → Démarrer tous les services"
+	@echo "  make stop           → Arrêter tous les services"
+	@echo "  make logs           → Voir les logs"
+	@echo "  make format         → Formater le code avant commit"
 	@echo ""
+	@echo "📋 Toutes les commandes:"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "💡 Tapez 'make QUICKSTART' pour voir le guide complet"
+	@echo ""
+
+QUICKSTART: ## Ouvrir le guide de démarrage rapide
+	@cat QUICKSTART.md
+
+# Alias pour les commandes courantes
+start: up ## Alias: Démarrer (même chose que 'up')
+stop: down ## Alias: Arrêter (même chose que 'down')
 
 build: ## Construire l'image Docker
 	@echo "🔨 Construction de l'image Docker..."
@@ -52,6 +69,8 @@ shell: ## Ouvrir un shell dans le conteneur app
 
 db-shell: ## Ouvrir un shell PostgreSQL
 	$(COMPOSE) exec postgres psql -U postgres -d collab
+
+db-connect: db-shell ## Alias: Se connecter à la base (même chose que 'db-shell')
 
 clean: ## Nettoyer tout (containers, volumes, images)
 	@echo "🧹 Nettoyage complet..."
@@ -113,6 +132,21 @@ lint: ## Vérifier le code avec Gradle
 watch: ## Suivre les logs en temps réel
 	$(COMPOSE) logs -f --tail=100
 
+format: ## Formater le code avec Prettier
+	@echo "🎨 Formatage du code..."
+	@npx prettier --write .
+	@echo "✅ Code formaté!"
+
+format-check: ## Vérifier le formatage (sans modifier)
+	@echo "🎨 Vérification du formatage..."
+	@npx prettier --check .
+	@echo "✅ Formatage vérifié!"
+
+install-prettier: ## Installer Prettier localement
+	@echo "📦 Installation de Prettier..."
+	@npm install
+	@echo "✅ Prettier installé!"
+
 stats: ## Afficher les statistiques des conteneurs
 	docker stats collab-app collab-postgres collab-kafka collab-zookeeper
 
@@ -122,14 +156,14 @@ network: ## Afficher les informations réseau
 volumes: ## Lister les volumes
 	docker volume ls | grep collab
 
-install-hooks: ## Installer les git hooks (pre-commit, pre-push)
+install-hooks: ## Installer les git hooks (pre-commit avec Prettier)
 	@echo "🪝 Installation des git hooks..."
-	@mkdir -p .git/hooks
-	@echo '#!/bin/sh\nmake lint' > .git/hooks/pre-commit
-	@chmod +x .git/hooks/pre-commit
-	@echo "✅ Hooks installés!"
+	@bash scripts/install-hooks.sh
 
 ci: build test-docker ## Simulation CI local (build + test)
 	@echo "✅ Pipeline CI local terminé!"
+
+validate-all: format-check check lint ## Validation complète (format + syntaxe + lint)
+	@echo "✅ Toutes les validations passées!"
 
 all: clean build up logs ## Tout reconstruire et afficher les logs

@@ -7,6 +7,7 @@
 ## 🔄 Reproduction
 
 **Étapes pour reproduire :**
+
 1. Aller à '...'
 2. Cliquer sur '...'
 3. Faire défiler jusqu'à '...'

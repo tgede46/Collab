@@ -1,0 +1,34 @@
+# Build output
+build/
+*.jar
+*.class
+bin/
+
+# Dependencies
+node_modules/
+.gradle/
+gradle/
+
+# Docker
+.dockerignore
+
+# Git
+.git/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+
+# Scripts
+gitflow/
+
+# Config
+config/

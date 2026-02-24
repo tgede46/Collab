@@ -2,7 +2,8 @@
 
 ## 📋 Secrets à configurer
 
-Pour que le pipeline fonctionne, ajoutez ces secrets dans **Settings > Secrets and variables > Actions** :
+Pour que le pipeline fonctionne, ajoutez ces secrets dans **Settings > Secrets
+and variables > Actions** :
 
 ### Secrets obligatoires pour Docker Hub (optionnel)
 
@@ -22,10 +23,12 @@ Pour que le pipeline fonctionne, ajoutez ces secrets dans **Settings > Secrets a
 ### 1. **CI/CD Pipeline** (`.github/workflows/ci-cd.yml`)
 
 **Déclencheurs :**
+
 - Push sur `main`, `develop`, `devops`
 - Pull Request vers `main`, `develop`
 
 **Jobs :**
+
 - ✅ **build-and-test** : Compile avec Gradle et génère le JAR
 - 🐳 **docker-build** : Construit l'image Docker
 - 🧪 **docker-compose-test** : Teste avec Docker Compose
@@ -37,16 +40,19 @@ Pour que le pipeline fonctionne, ajoutez ces secrets dans **Settings > Secrets a
 ### 2. **Docker Publish** (`.github/workflows/docker-publish.yml`)
 
 **Déclencheurs :**
+
 - Création d'une release GitHub
 - Manuel via `workflow_dispatch`
 
 **Actions :**
+
 - Publie l'image sur Docker Hub avec tags versionnés
 - Support multi-architecture (amd64, arm64)
 
 ### 3. **Dependabot** (`.github/dependabot.yml`)
 
 **Actions :**
+
 - Mise à jour automatique des GitHub Actions
 - Mise à jour des dépendances Gradle
 - Mise à jour des images Docker
@@ -62,7 +68,8 @@ Ajoutez ces badges dans votre README.md :
 
 ## 🔧 Environnements GitHub
 
-Pour les déploiements, créez ces environnements dans **Settings > Environments** :
+Pour les déploiements, créez ces environnements dans **Settings > Environments**
+:
 
 1. **staging**
    - Protection rules : Aucune
@@ -75,16 +82,19 @@ Pour les déploiements, créez ces environnements dans **Settings > Environments
 ## 🧪 Tester localement
 
 ### Tester le build Gradle
+
 ```bash
 ./gradlew clean build --no-daemon
 ```
 
 ### Tester le build Docker
+
 ```bash
 docker build -t collab-app:test .
 ```
 
 ### Tester Docker Compose
+
 ```bash
 docker compose up -d
 docker compose ps
@@ -95,6 +105,7 @@ docker compose down -v
 ## 🚀 Workflow de développement
 
 ### Feature branches
+
 ```bash
 git checkout -b feature/ma-fonctionnalite
 git push origin feature/ma-fonctionnalite
@@ -102,6 +113,7 @@ git push origin feature/ma-fonctionnalite
 ```
 
 ### Déploiement staging
+
 ```bash
 git checkout develop
 git merge feature/ma-fonctionnalite
@@ -110,6 +122,7 @@ git push origin develop
 ```
 
 ### Déploiement production
+
 ```bash
 git checkout main
 git merge develop
@@ -125,6 +138,7 @@ git push origin v1.0.0
 ```
 
 Ou via GitHub :
+
 1. **Releases > Create a new release**
 2. Choisir un tag (ex: `v1.0.0`)
 3. Publier
@@ -139,6 +153,7 @@ Ou via GitHub :
 ## ⚡ Optimisations
 
 Le pipeline utilise :
+
 - ✅ Cache Gradle pour builds plus rapides
 - ✅ Cache Docker layers (GitHub Actions Cache)
 - ✅ Build multi-stage Docker
@@ -149,6 +164,7 @@ Le pipeline utilise :
 ### Désactiver le push Docker Hub
 
 Dans `.github/workflows/ci-cd.yml`, commentez :
+
 ```yaml
 # - name: Log in to Docker Hub (optional)
 #   if: github.event_name != 'pull_request'
@@ -158,6 +174,7 @@ Dans `.github/workflows/ci-cd.yml`, commentez :
 ### Ajouter des notifications Slack
 
 Ajoutez dans le job `notify` :
+
 ```yaml
 - name: Slack notification
   uses: 8398a7/action-slack@v3

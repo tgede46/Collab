@@ -1,70 +1,58 @@
 # 🚀 Collab - Application Spring Boot
 
 ![CI/CD](https://github.com/VOTRE_USERNAME/Collab/workflows/CI/CD%20Pipeline/badge.svg)
+![Prettier](https://github.com/VOTRE_USERNAME/Collab/workflows/Prettier%20Check/badge.svg)
+![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat&logo=prettier)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-green.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 
 Application Spring Boot avec PostgreSQL et Kafka, déployée avec Docker.
 
+---
+
+## 📖 **[👉 Guide Démarrage Rapide (cliquez ici)](QUICKSTART.md)**
+
+**Nouveau dans le projet ? Lisez le [QUICKSTART.md](QUICKSTART.md) pour démarrer
+en 3 minutes !**
+
+---
+
 ## 📋 Prérequis
 
 - Docker et Docker Compose installés
-- Port 8080, 5432 et 9092 disponibles
+- Port 8080, 5433 et 9092 disponibles
 
 ## 🚀 Démarrage Rapide
 
-### Avec Makefile (recommandé)
+### Commandes Essentielles
 
 ```bash
-# Voir toutes les commandes disponibles
-make help
-
 # Démarrer l'application
-make up
+make start
 
 # Voir les logs
 make logs
 
+# Formater le code
+make format
+
 # Arrêter l'application
-make down
+make stop
+
+# Voir toutes les commandes
+make help
 ```
 
-### Avec Docker Compose
-
-```bash
-docker compose up -d
-```
-
-L'application sera accessible sur **http://localhost:8080**
-
-### Voir les logs
-
-```bash
-docker compose logs -f app
-```
-
-Appuyez sur `Ctrl + C` pour quitter.
-
-### Arrêter l'application
-
-```bash
-docker compose down
-```
-
-### Arrêter et supprimer les données
-
-```bash
-docker compose down -v
-```
+L'application sera accessible sur **<http://localhost:8080>**
 
 ## 📦 Services
 
-| Service | Port | Identifiants |
-|---------|------|--------------|
-| Application | 8080 | - |
-| PostgreSQL | 5432 | postgres/postgres |
-| Kafka | 9092 | - |
+| Service     | Port | Identifiants      |
+| ----------- | ---- | ----------------- |
+| Application | 8080 | -                 |
+| PostgreSQL  | 5432 | postgres/postgres |
+| Kafka       | 9092 | -                 |
 
 ## 🔧 Rebuild après modifications
 
@@ -79,16 +67,19 @@ docker compose up -d
 ## 🐛 Dépannage
 
 ### Vérifier l'état des services
+
 ```bash
 docker compose ps
 ```
 
 ### Voir tous les logs
+
 ```bash
 docker compose logs
 ```
 
 ### Nettoyer complètement
+
 ```bash
 docker compose down -v
 docker system prune -f
@@ -98,9 +89,11 @@ docker system prune -f
 
 Le projet utilise GitHub Actions pour l'intégration et le déploiement continus.
 
-Voir [.github/GITHUB_ACTIONS.md](.github/GITHUB_ACTIONS.md) pour plus de détails.
+Voir [.github/GITHUB_ACTIONS.md](.github/GITHUB_ACTIONS.md) pour plus de
+détails.
 
 **Workflows disponibles :**
+
 - ✅ Build & Test automatique
 - 🐳 Build Docker image
 - 🧪 Tests d'intégration

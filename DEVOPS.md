@@ -15,7 +15,7 @@ make status
 # 4. Accéder à l'application
 open http://localhost:8080
 ```
-   
+
 ## 📦 Structure DevOps créée
 
 ```
@@ -41,6 +41,7 @@ Collab/
 ## 🎯 Fonctionnalités DevOps implémentées
 
 ### ✅ Docker & Containerisation
+
 - [x] Multi-stage builds (optimisé)
 - [x] Docker Compose avec tous les services
 - [x] Health checks
@@ -48,6 +49,7 @@ Collab/
 - [x] .dockerignore configuré
 
 ### ✅ CI/CD (GitHub Actions)
+
 - [x] Build automatique
 - [x] Tests automatiques
 - [x] Build Docker image
@@ -58,6 +60,7 @@ Collab/
 - [x] Cache optimisé (Gradle + Docker)
 
 ### ✅ Automation
+
 - [x] Makefile avec 25+ commandes
 - [x] Dependabot (mises à jour auto)
 - [x] Templates PR/Issues
@@ -65,6 +68,7 @@ Collab/
 - [x] Scripts de backup
 
 ### ✅ Monitoring & Observability
+
 - [x] Health checks Docker
 - [x] Logs centralisés
 - [x] Stats des conteneurs
@@ -72,36 +76,39 @@ Collab/
 
 ## 🔧 Commandes Makefile disponibles
 
-| Commande | Description |
-|----------|-------------|
-| `make help` | Afficher toutes les commandes |
-| `make up` | Démarrer les services |
-| `make down` | Arrêter les services |
-| `make logs` | Voir les logs de l'app |
-| `make status` | Statut des conteneurs |
-| `make build` | Build l'image Docker |
-| `make rebuild` | Rebuild complet |
-| `make clean` | Nettoyer tout |
-| `make test` | Lancer les tests |
-| `make shell` | Shell dans le conteneur |
-| `make db-backup` | Backup de la DB |
-| `make health` | Vérifier la santé |
-| `make stats` | Stats des conteneurs |
+| Commande         | Description                   |
+| ---------------- | ----------------------------- |
+| `make help`      | Afficher toutes les commandes |
+| `make up`        | Démarrer les services         |
+| `make down`      | Arrêter les services          |
+| `make logs`      | Voir les logs de l'app        |
+| `make status`    | Statut des conteneurs         |
+| `make build`     | Build l'image Docker          |
+| `make rebuild`   | Rebuild complet               |
+| `make clean`     | Nettoyer tout                 |
+| `make test`      | Lancer les tests              |
+| `make shell`     | Shell dans le conteneur       |
+| `make db-backup` | Backup de la DB               |
+| `make health`    | Vérifier la santé             |
+| `make stats`     | Stats des conteneurs          |
 
 ## 🚀 Workflows CI/CD
 
 ### 1. **CI/CD Pipeline** (Automatique)
 
 **Déclencheurs:**
+
 - Push sur `main`, `develop`, `devops`
 - Pull Request vers `main`, `develop`
 
 **Pipeline:**
+
 ```
 Build & Test → Docker Build → Docker Compose Test → Security Scan → Deploy
 ```
 
 **Jobs:**
+
 1. **build-and-test**: Compile avec Gradle, génère JAR
 2. **docker-build**: Construit l'image Docker
 3. **docker-compose-test**: Tests d'intégration complets
@@ -113,10 +120,12 @@ Build & Test → Docker Build → Docker Compose Test → Security Scan → Depl
 ### 2. **Docker Publish** (Manuel/Release)
 
 **Déclencheurs:**
+
 - Création d'une release GitHub
 - Workflow manuel
 
 **Actions:**
+
 - Build et push vers Docker Hub
 - Tags versionnés
 - Multi-architecture (amd64, arm64)
@@ -137,16 +146,19 @@ DOCKER_PASSWORD=votre-token-docker-hub
 Dans **Settings > Environments**:
 
 **staging:**
+
 - Pas de protection
 - Auto-deploy depuis `develop`
 
 **production:**
+
 - Required reviewers: 1+
 - Auto-deploy depuis `main`
 
 ### 3. Branch protection rules
 
 Sur la branche `main`:
+
 - [x] Require pull request reviews (1)
 - [x] Require status checks to pass
 - [x] Require branches to be up to date
@@ -203,6 +215,7 @@ make down
 ## 🎯 Workflow Git recommandé
 
 ### Nouvelle feature
+
 ```bash
 git checkout -b feature/ma-feature
 # ... développement ...
@@ -213,6 +226,7 @@ git push origin feature/ma-feature
 ```
 
 ### Déploiement staging
+
 ```bash
 git checkout develop
 git merge feature/ma-feature
@@ -221,6 +235,7 @@ git push origin develop
 ```
 
 ### Déploiement production
+
 ```bash
 git checkout main
 git merge develop
@@ -229,6 +244,7 @@ git push origin main
 ```
 
 ### Créer une release
+
 ```bash
 git tag -a v1.0.0 -m "Release 1.0.0"
 git push origin v1.0.0
@@ -290,6 +306,7 @@ sudo lsof -i :5433
 ## 🎉 C'est prêt!
 
 Votre projet a maintenant:
+
 - ✅ Pipeline CI/CD complet
 - ✅ Déploiement automatisé
 - ✅ Tests automatiques

@@ -5,7 +5,7 @@ Cette documentation détaille tous les controllers REST implémentés pour l'app
 ## 📊 Matrice des Permissions
 
 | Action                       | OWNER | EDITOR | VIEWER | Guest |
-| ---------------------------- | ----- | ------ | ------ | ----- |
+| ---------------------------- | ----- | ------ | ------ | ----- |  
 | **Workspace**                |
 | Créer un workspace           | ✅    | ✅     | ✅     | ❌    |
 | Inviter des membres          | ✅    | ❌     | ❌     | ❌    |

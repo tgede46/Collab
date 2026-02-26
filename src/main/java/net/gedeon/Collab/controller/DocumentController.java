@@ -7,18 +7,20 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.gedeon.Collab.dto.document.CreateDocumentRequest;
@@ -26,8 +28,9 @@ import net.gedeon.Collab.dto.document.DocumentResponse;
 import net.gedeon.Collab.dto.document.UpdateDocumentRequest;
 import net.gedeon.Collab.entitie.document.Document;
 import net.gedeon.Collab.entitie.document.DocumentPermission;
-import net.gedeon.Collab.repository.DocumentRepository;
 import net.gedeon.Collab.repository.EditingSessionRepository;
+import net.gedeon.Collab.service.DocumentService;
+import net.gedeon.Collab.service.JwtService;
 import net.gedeon.Collab.service.PermissionService;
 
 /**
@@ -42,62 +45,47 @@ import net.gedeon.Collab.service.PermissionService;
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/documents")
 @RequiredArgsConstructor
+@Tag(name = "Documents", description = "Gestion des documents")
 public class DocumentController {
 
-    private final DocumentRepository documentRepository;
+    private final DocumentService documentService;
     private final EditingSessionRepository sessionRepository;
+    private final JwtService jwtService;
     private final PermissionService permissionService;
 
     /**
      * Créer un document (✓ OWNER, EDITOR)
      */
     @PostMapping
+    @Operation(summary = "Créer un nouveau document")
     public ResponseEntity<DocumentResponse> createDocument(
             @PathVariable UUID workspaceId,
             @Valid @RequestBody CreateDocumentRequest request,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
-
-        if (!permissionService.canCreateDocument(workspaceId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Only workspace OWNER or EDITOR can create documents");
-        }
-
-        Document document = Document.builder()
-                .workspaceId(workspaceId)
-                .createdBy(userId)
-                .title(request.getTitle())
-                .content(request.getContent() != null ? request.getContent() : "")
-                .version(0L)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        document = documentRepository.save(document);
+        UUID userId = extractUserId(authHeader);
+        Document document = documentService.createDocument(workspaceId, userId, request.getTitle(),
+                request.getContent());
+        DocumentPermission permission = DocumentPermission.OWNER;
+        int activeCollaborators = getActiveCollaborators(document.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponse(document, DocumentPermission.OWNER, 0));
+                .body(toResponse(document, permission, activeCollaborators));
     }
 
     /**
      * Récupérer tous les documents d'un workspace
      */
     @GetMapping
+    @Operation(summary = "Récupérer tous les documents d'un workspace")
     public ResponseEntity<List<DocumentResponse>> getDocuments(
             @PathVariable UUID workspaceId,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
-
-        if (!permissionService.canAccessWorkspace(workspaceId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to workspace");
-        }
-
-        List<Document> documents = documentRepository.findByWorkspaceId(workspaceId);
+        UUID userId = extractUserId(authHeader);
+        List<Document> documents = documentService.getWorkspaceDocuments(workspaceId, userId);
 
         List<DocumentResponse> responses = documents.stream()
-                .filter(doc -> permissionService.canReadDocument(doc.getId(), userId))
                 .map(doc -> {
                     DocumentPermission permission = permissionService.getUserDocumentPermission(doc.getId(), userId);
                     int activeCollaborators = getActiveCollaborators(doc.getId());
@@ -112,19 +100,18 @@ public class DocumentController {
      * Récupérer un document par ID (✓ OWNER, EDITOR, VIEWER, Guest)
      */
     @GetMapping("/{documentId}")
+    @Operation(summary = "Récupérer un document par ID")
     public ResponseEntity<DocumentResponse> getDocument(
             @PathVariable UUID workspaceId,
             @PathVariable UUID documentId,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
+        UUID userId = extractUserId(authHeader);
+        Document document = documentService.getDocumentById(documentId);
 
         if (!permissionService.canReadDocument(documentId, userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to document");
         }
-
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         DocumentPermission permission = permissionService.getUserDocumentPermission(documentId, userId);
         int activeCollaborators = getActiveCollaborators(documentId);
@@ -136,39 +123,16 @@ public class DocumentController {
      * Mettre à jour un document (✓ OWNER, EDITOR)
      */
     @PutMapping("/{documentId}")
+    @Operation(summary = "Mettre à jour un document")
     public ResponseEntity<DocumentResponse> updateDocument(
             @PathVariable UUID workspaceId,
             @PathVariable UUID documentId,
             @Valid @RequestBody UpdateDocumentRequest request,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
-
-        if (!permissionService.canEditDocument(documentId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Only OWNER or EDITOR can edit documents");
-        }
-
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
-        // Vérifier la version pour éviter les conflits
-        if (request.getClientVersion() != null && document.getVersion() != request.getClientVersion()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Document version mismatch. Please refresh and try again.");
-        }
-
-        if (request.getTitle() != null) {
-            document.setTitle(request.getTitle());
-        }
-        if (request.getContent() != null) {
-            document.setContent(request.getContent());
-        }
-
-        document.incrementVersion();
-        document.setUpdatedAt(LocalDateTime.now());
-
-        document = documentRepository.save(document);
+        UUID userId = extractUserId(authHeader);
+        Document document = documentService.updateDocument(documentId, userId, request.getTitle(),
+                request.getContent());
 
         DocumentPermission permission = permissionService.getUserDocumentPermission(documentId, userId);
         int activeCollaborators = getActiveCollaborators(documentId);
@@ -180,19 +144,14 @@ public class DocumentController {
      * Supprimer un document (✓ OWNER uniquement)
      */
     @DeleteMapping("/{documentId}")
+    @Operation(summary = "Supprimer un document")
     public ResponseEntity<String> deleteDocument(
             @PathVariable UUID workspaceId,
             @PathVariable UUID documentId,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
-
-        if (!permissionService.canDeleteDocument(documentId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Only document OWNER can delete documents");
-        }
-
-        documentRepository.deleteById(documentId);
+        UUID userId = extractUserId(authHeader);
+        documentService.deleteDocument(documentId, userId);
 
         return ResponseEntity.ok("Document deleted successfully");
     }
@@ -201,22 +160,20 @@ public class DocumentController {
      * Exporter un document (✓ OWNER, EDITOR, VIEWER)
      */
     @GetMapping("/{documentId}/export")
+    @Operation(summary = "Exporter un document")
     public ResponseEntity<String> exportDocument(
             @PathVariable UUID workspaceId,
             @PathVariable UUID documentId,
             @RequestParam(defaultValue = "txt") String format,
-            Authentication authentication) {
+            @RequestHeader("Authorization") String authHeader) {
 
-        UUID userId = getUserId(authentication);
+        UUID userId = extractUserId(authHeader);
 
         if (!permissionService.canExportDocument(documentId, userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Export permission denied");
         }
 
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
-        // TODO: Implémenter différents formats d'export (txt, pdf, md, etc.)
+        Document document = documentService.getDocumentById(documentId);
         String exportedContent = "# " + document.getTitle() + "\n\n" + document.getContent();
 
         return ResponseEntity.ok()
@@ -226,9 +183,9 @@ public class DocumentController {
 
     // ============== HELPER METHODS ==============
 
-    private UUID getUserId(Authentication authentication) {
-        // TODO: Extraire l'ID utilisateur depuis le JWT
-        return UUID.fromString(authentication.getName());
+    private UUID extractUserId(String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        return jwtService.extractUserId(token);
     }
 
     private int getActiveCollaborators(UUID documentId) {

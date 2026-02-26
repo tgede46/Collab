@@ -14,9 +14,9 @@ public interface DocumentSnapshotRepository extends JpaRepository<DocumentSnapsh
 
     List<DocumentSnapshot> findByDocumentIdOrderByCreatedAtDesc(UUID documentId);
 
-    List<DocumentSnapshot> findByDocumentIdOrderByVersionDesc(UUID documentId);
+    List<DocumentSnapshot> findByDocumentIdOrderByVersionAtDesc(UUID documentId);
 
-    Optional<DocumentSnapshot> findByDocumentIdAndVersion(UUID documentId, Long version);
+    Optional<DocumentSnapshot> findByDocumentIdAndVersionAt(UUID documentId, Long version);
 
     void deleteByDocumentId(UUID documentId);
 }

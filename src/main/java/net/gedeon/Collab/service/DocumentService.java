@@ -258,7 +258,7 @@ public class DocumentService {
             throw new SecurityException("Not authorized to view document history");
         }
 
-        return snapshotRepository.findByDocumentIdOrderByVersionDesc(documentId);
+        return snapshotRepository.findByDocumentIdOrderByVersionAtDesc(documentId);
     }
 
     /**
@@ -272,7 +272,7 @@ public class DocumentService {
         }
 
         // Récupérer le snapshot
-        DocumentSnapshot snapshot = snapshotRepository.findByDocumentIdAndVersion(documentId, version)
+        DocumentSnapshot snapshot = snapshotRepository.findByDocumentIdAndVersionAt(documentId, version)
                 .orElseThrow(() -> new IllegalArgumentException("Version not found"));
 
         // Mettre à jour le document
@@ -299,5 +299,61 @@ public class DocumentService {
         }
 
         return documentAccessRepository.findByDocumentId(documentId);
+    }
+
+    /**
+     * Récupère un snapshot spécifique
+     */
+    public DocumentSnapshot getSnapshot(UUID snapshotId, UUID userId) {
+        DocumentSnapshot snapshot = snapshotRepository.findById(snapshotId)
+                .orElseThrow(() -> new IllegalArgumentException("Snapshot not found"));
+
+        // Vérifier les permissions
+        if (!permissionService.canReadDocument(snapshot.getDocument().getId(), userId)) {
+            throw new SecurityException("Not authorized to view this snapshot");
+        }
+
+        return snapshot;
+    }
+
+    /**
+     * Supprime un snapshot
+     */
+    @Transactional
+    public void deleteSnapshot(UUID snapshotId, UUID userId) {
+        DocumentSnapshot snapshot = snapshotRepository.findById(snapshotId)
+                .orElseThrow(() -> new IllegalArgumentException("Snapshot not found"));
+
+        // Vérifier les permissions (seul le propriétaire peut supprimer)
+        if (!permissionService.canDeleteDocument(snapshot.getDocument().getId(), userId)) {
+            throw new SecurityException("Only document owner can delete snapshots");
+        }
+
+        snapshotRepository.deleteById(snapshotId);
+    }
+
+    /**
+     * Compare deux versions de document
+     */
+    public String compareVersions(UUID documentId, UUID snapshot1Id, UUID snapshot2Id, UUID userId) {
+        // Vérifier les permissions
+        if (!permissionService.canReadDocument(documentId, userId)) {
+            throw new SecurityException("Not authorized to view document versions");
+        }
+
+        DocumentSnapshot snapshot1 = snapshotRepository.findById(snapshot1Id)
+                .orElseThrow(() -> new IllegalArgumentException("Snapshot 1 not found"));
+
+        DocumentSnapshot snapshot2 = snapshotRepository.findById(snapshot2Id)
+                .orElseThrow(() -> new IllegalArgumentException("Snapshot 2 not found"));
+
+        // Vérifier que les snapshots appartiennent au document
+        if (!snapshot1.getDocument().getId().equals(documentId) ||
+                !snapshot2.getDocument().getId().equals(documentId)) {
+            throw new IllegalArgumentException("Snapshots don't belong to this document");
+        }
+
+        // TODO: Implémenter un vrai algorithme de diff (comme Myers diff)
+        return "Version " + snapshot1.getVersionAt() + " vs Version " + snapshot2.getVersionAt();
     }
 }

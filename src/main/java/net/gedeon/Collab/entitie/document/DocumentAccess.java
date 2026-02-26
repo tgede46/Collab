@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "document_accesses")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor

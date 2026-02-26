@@ -1,6 +1,7 @@
 package net.gedeon.Collab.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,9 @@ public interface DocumentSnapshotRepository extends JpaRepository<DocumentSnapsh
 
     List<DocumentSnapshot> findByDocumentIdOrderByCreatedAtDesc(UUID documentId);
 
-    List<DocumentSnapshot> findByDocumentIdOrderByVersionAtDesc(UUID documentId);
+    List<DocumentSnapshot> findByDocumentIdOrderByVersionDesc(UUID documentId);
+
+    Optional<DocumentSnapshot> findByDocumentIdAndVersion(UUID documentId, Long version);
+
+    void deleteByDocumentId(UUID documentId);
 }

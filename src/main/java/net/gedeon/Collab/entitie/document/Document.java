@@ -24,7 +24,7 @@ import lombok.Setter;
 import net.gedeon.Collab.entitie.collaboration.Operation;
 
 @Entity
-@Table(name = "documents")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor

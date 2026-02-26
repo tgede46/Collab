@@ -19,5 +19,11 @@ public interface EditingSessionRepository extends JpaRepository<EditingSession, 
 
     Optional<EditingSession> findBySessionId(String sessionId);
 
+    Optional<EditingSession> findByDocumentIdAndUserId(UUID documentId, UUID userId);
+
+    List<EditingSession> findByLastSeenBefore(LocalDateTime threshold);
+
+    long countByDocumentId(UUID documentId);
+
     void deleteByLastSeenBefore(LocalDateTime threshold);
 }

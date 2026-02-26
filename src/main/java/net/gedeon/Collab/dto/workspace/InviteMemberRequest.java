@@ -18,6 +18,6 @@ public class InviteMemberRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotNull(message = "Role is required")
+    @NotNull()
     private WorkspaceRole role;
 }

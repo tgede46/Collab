@@ -13,5 +13,7 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
 
     List<Operation> findByDocumentIdOrderByServerVersionAsc(UUID documentId);
 
+    List<Operation> findByDocumentIdOrderByAppliedAtDesc(UUID documentId);
+
     List<Operation> findByDocumentIdAndServerVersionGreaterThan(UUID documentId, long version);
 }

@@ -23,7 +23,7 @@ import lombok.Setter;
 import net.gedeon.Collab.entitie.document.Document;
 
 @Entity
-@Table(name = "operations")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor

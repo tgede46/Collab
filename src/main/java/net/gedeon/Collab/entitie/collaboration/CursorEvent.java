@@ -9,11 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * CursorEvent represents a message for real-time cursor position updates.
- * This is not persisted to the database, but sent through Kafka for real-time
- * collaboration.
- */
 @Getter
 @Setter
 @NoArgsConstructor

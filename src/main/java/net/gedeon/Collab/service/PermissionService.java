@@ -126,7 +126,7 @@ public class PermissionService {
                 .orElse(null);
     }
 
-    private DocumentPermission getDocumentPermission(UUID documentId, UUID userId) {
+    public DocumentPermission getDocumentPermission(UUID documentId, UUID userId) {
         // 1. Vérifier si c'est le créateur du document
         Optional<Document> docOpt = documentRepository.findById(documentId);
         if (docOpt.isEmpty()) {

@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "workspace_memberships")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,7 +35,7 @@ public class WorkspaceMembership {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workspace_id", nullable = false)
+    @JoinColumn( nullable = false)
     private Workspace workspace;
 
     @Column(nullable = false)

@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "share_links")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,7 +34,7 @@ public class ShareLink {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
+    @JoinColumn( nullable = false)
     private Document document;
 
     @Column(nullable = false, unique = true)

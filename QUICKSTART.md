@@ -65,7 +65,7 @@ make build
 make logs
 
 # Voir les logs d'un service spécifique
-docker compose logs -f collab-app
+docker compose logs -f app
 docker compose logs -f postgres
 docker compose logs -f kafka
 ```
@@ -76,7 +76,7 @@ docker compose logs -f kafka
 # Se connecter à PostgreSQL
 make db-connect
 # ou manuellement:
-docker exec -it collab-postgres psql -U admin -d collab
+docker exec -it collab-postgres psql -U postgres -d collab
 ```
 
 ## 📝 Workflow Git recommandé
@@ -173,7 +173,7 @@ docker compose ps
 docker compose restart postgres
 
 # Attendre quelques secondes et relancer l'app
-docker compose restart collab-app
+docker compose restart app
 ```
 
 ## 📚 Documentation complète

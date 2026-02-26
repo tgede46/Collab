@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "activity_logs")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor

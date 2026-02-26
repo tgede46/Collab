@@ -19,4 +19,6 @@ public interface DocumentAccessRepository extends JpaRepository<DocumentAccess, 
     Optional<DocumentAccess> findByDocumentIdAndUserId(UUID documentId, UUID userId);
 
     boolean existsByDocumentIdAndUserId(UUID documentId, UUID userId);
+
+    void deleteByDocumentId(UUID documentId);
 }

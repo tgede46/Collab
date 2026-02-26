@@ -12,16 +12,16 @@ import net.gedeon.Collab.entitie.collaboration.OperationType;
 @AllArgsConstructor
 public class OperationRequest {
 
-    @NotNull(message = "Operation type is required")
+    @NotNull()
     private OperationType type;
 
-    @NotNull(message = "Position is required")
+    @NotNull()
     private Integer position;
 
     private String content;
 
     private Integer length;
 
-    @NotNull(message = "Client version is required")
+    @NotNull()
     private Long clientVersion;
 }

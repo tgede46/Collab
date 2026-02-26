@@ -44,6 +44,28 @@ public class OTEngine {
     }
 
     /**
+     * Transform a client operation against a list of server operations.
+     * This is used when a client operation needs to be transformed against
+     * multiple operations that happened on the server.
+     *
+     * @param clientOp  The client operation to transform
+     * @param serverOps List of server operations
+     * @return The transformed client operation
+     */
+    public Operation transform(Operation clientOp, List<Operation> serverOps) {
+        if (serverOps == null || serverOps.isEmpty()) {
+            return clientOp;
+        }
+
+        Operation transformedOp = clientOp;
+        for (Operation serverOp : serverOps) {
+            transformedOp = transform(serverOp, transformedOp);
+        }
+
+        return transformedOp;
+    }
+
+    /**
      * Apply an operation to a document and return the new content.
      *
      * @param document  The document to modify

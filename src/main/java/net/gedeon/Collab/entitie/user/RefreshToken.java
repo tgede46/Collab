@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "refresh_tokens")
+@Table()
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,7 +32,7 @@ public class RefreshToken {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn( nullable = false)
     private User user;
 
     @Column(nullable = false, unique = true)

@@ -1,4 +1,4 @@
-# 🚀 Collab - Application Spring Boot
+z# 🚀 Collab - Application Spring Boot
 
 ![CI/CD](https://github.com/VOTRE_USERNAME/Collab/workflows/CI/CD%20Pipeline/badge.svg)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
@@ -49,7 +49,7 @@ L'application sera accessible sur **<http://localhost:8080>**
 | Service     | Port | Identifiants      |
 | ----------- | ---- | ----------------- |
 | Application | 8080 | -                 |
-| PostgreSQL  | 5432 | postgres/postgres |
+| PostgreSQL  | 5433 | postgres/postgres |
 | Kafka       | 9092 | -                 |
 
 ## 🔧 Rebuild après modifications

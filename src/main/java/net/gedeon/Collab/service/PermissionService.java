@@ -155,7 +155,10 @@ public class PermissionService {
             return DocumentPermission.VIEWER;
         }
 
-        // 4. TODO: Vérifier ShareLink pour Guest access
+        // 4. Accès Guest via ShareLink
+        // Note: L'accès Guest est géré séparément via ShareLinkService
+        // car il ne nécessite pas d'authentification (pas de userId)
+        // Voir ShareController pour l'implémentation de l'accès public
 
         return null;
     }

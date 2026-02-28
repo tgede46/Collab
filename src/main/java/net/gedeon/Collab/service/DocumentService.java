@@ -28,6 +28,7 @@ public class DocumentService {
     private final DocumentSnapshotRepository snapshotRepository;
     private final PermissionService permissionService;
     private final WorkspaceService workspaceService;
+    private final DiffService diffService;
 
     /**
      * Crée un nouveau document dans un workspace
@@ -353,7 +354,20 @@ public class DocumentService {
             throw new IllegalArgumentException("Snapshots don't belong to this document");
         }
 
-        // TODO: Implémenter un vrai algorithme de diff (comme Myers diff)
-        return "Version " + snapshot1.getVersionAt() + " vs Version " + snapshot2.getVersionAt();
+        // Calculer le diff entre les deux versions
+        String content1 = snapshot1.getContent();
+        String content2 = snapshot2.getContent();
+
+        StringBuilder result = new StringBuilder();
+        result.append("=== Comparing Versions ===\n");
+        result.append("Version ").append(snapshot1.getVersionAt())
+                .append(" (").append(snapshot1.getCreatedAt()).append(")\n");
+        result.append("vs\n");
+        result.append("Version ").append(snapshot2.getVersionAt())
+                .append(" (").append(snapshot2.getCreatedAt()).append(")\n\n");
+        result.append("=== Diff ===\n");
+        result.append(diffService.diff(content1, content2));
+
+        return result.toString();
     }
 }

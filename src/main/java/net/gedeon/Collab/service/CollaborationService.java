@@ -8,13 +8,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import net.gedeon.Collab.dto.collaboration.CursorEvent;
+import net.gedeon.Collab.dto.collaboration.OperationEvent;
 import net.gedeon.Collab.entitie.collaboration.EditingSession;
 import net.gedeon.Collab.entitie.collaboration.Operation;
 import net.gedeon.Collab.entitie.collaboration.OperationType;
 import net.gedeon.Collab.entitie.document.Document;
+import net.gedeon.Collab.entitie.user.User;
 import net.gedeon.Collab.repository.DocumentRepository;
 import net.gedeon.Collab.repository.EditingSessionRepository;
 import net.gedeon.Collab.repository.OperationRepository;
+import net.gedeon.Collab.repository.UserRepository;
 
 /**
  * Service de gestion de la collaboration en temps réel
@@ -26,8 +30,10 @@ public class CollaborationService {
     private final EditingSessionRepository sessionRepository;
     private final OperationRepository operationRepository;
     private final DocumentRepository documentRepository;
+    private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final OTEngine otEngine;
+    private final KafkaEventProducer kafkaEventProducer;
 
     /**
      * Démarre une session d'édition pour un utilisateur sur un document
@@ -82,7 +88,26 @@ public class CollaborationService {
                 .orElseThrow(() -> new IllegalArgumentException("Session not found"));
 
         session.updateCursor(position);
-        return sessionRepository.save(session);
+        EditingSession savedSession = sessionRepository.save(session);
+
+        // Récupérer l'utilisateur pour obtenir son username
+        User user = userRepository.findById(session.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Publier l'événement Kafka
+        CursorEvent event = CursorEvent.builder()
+                .documentId(session.getDocumentId())
+                .sessionId(UUID.fromString(sessionId))
+                .userId(session.getUserId())
+                .username(user.getUsername())
+                .position(position)
+                .color(session.getColor())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        kafkaEventProducer.publishCursorUpdate(event);
+
+        return savedSession;
     }
 
     /**
@@ -130,7 +155,12 @@ public class CollaborationService {
         documentRepository.save(document);
 
         // Sauvegarder l'opération
-        return operationRepository.save(operation);
+        Operation savedOperation = operationRepository.save(operation);
+
+        // Diffuser l'opération aux autres clients
+        broadcastOperation(documentId, savedOperation);
+
+        return savedOperation;
     }
 
     /**
@@ -193,13 +223,29 @@ public class CollaborationService {
     }
 
     /**
-     * Diffuse une opération à tous les utilisateurs actifs (à implémenter avec
-     * WebSocket/Kafka)
+     * Diffuse une opération à tous les utilisateurs actifs via Kafka
      */
     public void broadcastOperation(UUID documentId, Operation operation) {
-        // TODO: Implémenter la diffusion via WebSocket ou Kafka
-        // Cette méthode sera utilisée pour notifier tous les clients connectés
-        // de la nouvelle opération
+        // Récupérer l'utilisateur pour obtenir son username
+        User user = userRepository.findById(operation.getUserId())
+                .orElse(null);
+
+        // Créer l'événement d'opération
+        OperationEvent event = OperationEvent.builder()
+                .documentId(documentId)
+                .operationId(operation.getId())
+                .userId(operation.getUserId())
+                .username(user != null ? user.getUsername() : "Unknown")
+                .type(operation.getType())
+                .position(operation.getPosition())
+                .content(operation.getContent())
+                .length(operation.getLength())
+                .serverVersion(operation.getServerVersion())
+                .timestamp(operation.getAppliedAt())
+                .build();
+
+        // Publier l'événement via Kafka
+        kafkaEventProducer.publishDocumentOperation(event);
     }
 
     /**

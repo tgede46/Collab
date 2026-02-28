@@ -58,7 +58,7 @@ public class ShareLinkService {
                 .token(token)
                 .permission(permission)
                 .expiresAt(expiresAt)
-                .createdAt(LocalDateTime.now())
+                .revoked(false)
                 .build();
 
         return shareLinkRepository.save(shareLink);

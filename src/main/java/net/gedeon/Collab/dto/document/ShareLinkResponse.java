@@ -37,7 +37,7 @@ public class ShareLinkResponse {
                 .shareUrl("/api/share/" + shareLink.getToken()) // URL relative
                 .permission(shareLink.getPermission())
                 .expiresAt(shareLink.getExpiresAt())
-                .createdAt(shareLink.getCreatedAt())
+                .createdAt(null) // ShareLink n'a pas de createdAt
                 .isExpired(shareLink.getExpiresAt().isBefore(LocalDateTime.now()))
                 .build();
     }

@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             return org.springframework.security.core.userdetails.User
                     .builder()
                     .username(user.getId().toString())
-                    .password(user.getPassword()) // Le mot de passe hashé
+                    .password(user.getPasswordHash()) // Le mot de passe hashé
                     .authorities(new ArrayList<>()) // Pas de rôles spécifiques pour le moment
                     .accountExpired(false)
                     .accountLocked(false)
@@ -61,7 +61,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .builder()
                 .username(user.getId().toString())
-                .password(user.getPassword())
+                .password(user.getPasswordHash())
                 .authorities(new ArrayList<>())
                 .accountExpired(false)
                 .accountLocked(false)

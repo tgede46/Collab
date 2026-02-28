@@ -24,14 +24,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.gedeon.Collab.dto.document.CreateDocumentRequest;
+import net.gedeon.Collab.dto.document.CreateShareLinkRequest;
 import net.gedeon.Collab.dto.document.DocumentResponse;
+import net.gedeon.Collab.dto.document.ShareLinkResponse;
 import net.gedeon.Collab.dto.document.UpdateDocumentRequest;
 import net.gedeon.Collab.entitie.document.Document;
 import net.gedeon.Collab.entitie.document.DocumentPermission;
+import net.gedeon.Collab.entitie.document.ShareLink;
 import net.gedeon.Collab.repository.EditingSessionRepository;
 import net.gedeon.Collab.service.DocumentService;
 import net.gedeon.Collab.service.JwtService;
 import net.gedeon.Collab.service.PermissionService;
+import net.gedeon.Collab.service.ShareLinkService;
 
 /**
  * DocumentController - Gestion des documents
@@ -49,6 +53,7 @@ import net.gedeon.Collab.service.PermissionService;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final ShareLinkService shareLinkService;
     private final EditingSessionRepository sessionRepository;
     private final JwtService jwtService;
     private final PermissionService permissionService;
@@ -179,6 +184,67 @@ public class DocumentController {
         return ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=\"" + document.getTitle() + "." + format + "\"")
                 .body(exportedContent);
+    }
+
+    // ============== SHARE LINK ENDPOINTS ==============
+
+    /**
+     * Créer un lien de partage pour un document (✓ OWNER uniquement)
+     */
+    @PostMapping("/{documentId}/share")
+    @Operation(summary = "Créer un lien de partage")
+    public ResponseEntity<ShareLinkResponse> createShareLink(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID documentId,
+            @Valid @RequestBody CreateShareLinkRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+
+        UUID userId = extractUserId(authHeader);
+        ShareLink shareLink = shareLinkService.createShareLink(
+                documentId,
+                userId,
+                request.getPermission(),
+                request.getExpirationDays());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ShareLinkResponse.fromEntity(shareLink));
+    }
+
+    /**
+     * Récupérer tous les liens de partage actifs d'un document
+     */
+    @GetMapping("/{documentId}/share")
+    @Operation(summary = "Récupérer les liens de partage actifs")
+    public ResponseEntity<List<ShareLinkResponse>> getShareLinks(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID documentId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        UUID userId = extractUserId(authHeader);
+        List<ShareLink> shareLinks = shareLinkService.getActiveShareLinks(documentId, userId);
+
+        List<ShareLinkResponse> responses = shareLinks.stream()
+                .map(ShareLinkResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * Révoquer un lien de partage (✓ OWNER uniquement)
+     */
+    @DeleteMapping("/{documentId}/share/{shareLinkId}")
+    @Operation(summary = "Révoquer un lien de partage")
+    public ResponseEntity<String> revokeShareLink(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID documentId,
+            @PathVariable UUID shareLinkId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        UUID userId = extractUserId(authHeader);
+        shareLinkService.revokeShareLink(shareLinkId, userId);
+
+        return ResponseEntity.ok("Share link revoked successfully");
     }
 
     // ============== HELPER METHODS ==============

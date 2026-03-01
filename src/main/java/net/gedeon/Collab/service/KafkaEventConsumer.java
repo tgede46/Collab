@@ -12,17 +12,19 @@ import net.gedeon.Collab.dto.collaboration.OperationEvent;
 /**
  * Service de consommation d'événements Kafka
  *
- * Écoute les événements de curseurs et d'opérations pour
- * les traiter ou les rediffuser aux clients connectés
+ * Écoute les événements de curseurs et d'opérations depuis Kafka
+ * et les rediffuse aux clients connectés via WebSocket
  *
- * Note: Ce service est principalement utilisé pour le logging
- * et le monitoring. La rediffusion aux clients se ferait via
- * WebSocket (à implémenter si nécessaire)
+ * Cette architecture permet de scaler l'application : les événements
+ * sont d'abord publiés dans Kafka (persistance, replay), puis diffusés
+ * via WebSocket aux clients en temps réel
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaEventConsumer {
+
+    private final WebSocketService webSocketService;
 
     /**
      * Consommer les événements de mise à jour de curseur
@@ -34,8 +36,8 @@ public class KafkaEventConsumer {
                 event.getSessionId(),
                 event.getPosition());
 
-        // TODO: Rediffuser aux clients connectés via WebSocket
-        // Pour l'instant, juste log l'événement
+        // Rediffuser aux clients connectés via WebSocket
+        webSocketService.broadcastCursorUpdate(event.getDocumentId(), event);
     }
 
     /**
@@ -48,9 +50,12 @@ public class KafkaEventConsumer {
                 event.getType(),
                 event.getServerVersion());
 
-        // TODO: Rediffuser aux clients connectés via WebSocket
-        // Pour l'instant, juste log l'événement
+        // Rediffuser aux clients connectés via WebSocket
+        webSocketService.broadcastOperation(event.getDocumentId(), event);
 
-        // Possibilité de persister ou agréger les opérations ici
+        // Possibilité d'ajouter d'autres traitements :
+        // - Agrégation des opérations
+        // - Génération automatique de snapshots
+        // - Analytics / monitoring
     }
 }

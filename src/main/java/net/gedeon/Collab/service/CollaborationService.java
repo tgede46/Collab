@@ -34,6 +34,7 @@ public class CollaborationService {
     private final PermissionService permissionService;
     private final OTEngine otEngine;
     private final KafkaEventProducer kafkaEventProducer;
+    private final WebSocketService webSocketService;
 
     /**
      * Démarre une session d'édition pour un utilisateur sur un document
@@ -64,7 +65,15 @@ public class CollaborationService {
                 .cursorPosition(0)
                 .build();
 
-        return sessionRepository.save(session);
+        EditingSession savedSession = sessionRepository.save(session);
+
+        // Notifier les autres utilisateurs qu'un utilisateur a rejoint
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            webSocketService.broadcastUserJoined(documentId, userId, user.getUsername());
+        }
+
+        return savedSession;
     }
 
     /**
@@ -74,6 +83,12 @@ public class CollaborationService {
     public void endSession(String sessionId) {
         EditingSession session = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+
+        // Notifier les autres utilisateurs qu'un utilisateur a quitté
+        User user = userRepository.findById(session.getUserId()).orElse(null);
+        if (user != null) {
+            webSocketService.broadcastUserLeft(session.getDocumentId(), session.getUserId(), user.getUsername());
+        }
 
         session.disconnect();
         sessionRepository.delete(session);
@@ -106,6 +121,9 @@ public class CollaborationService {
                 .build();
 
         kafkaEventProducer.publishCursorUpdate(event);
+
+        // Diffuser via WebSocket
+        webSocketService.broadcastCursorUpdate(session.getDocumentId(), event);
 
         return savedSession;
     }
@@ -246,6 +264,9 @@ public class CollaborationService {
 
         // Publier l'événement via Kafka
         kafkaEventProducer.publishDocumentOperation(event);
+
+        // Diffuser via WebSocket
+        webSocketService.broadcastOperation(documentId, event);
     }
 
     /**

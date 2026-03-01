@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Endpoints publics de partage (accès Guest)
                         .requestMatchers("/api/share/**").permitAll()
+                        // WebSocket endpoints (authentification gérée par l'intercepteur)
+                        .requestMatchers("/ws/**").permitAll()
                         // Actuator health check
                         .requestMatchers("/actuator/health").permitAll()
                         // Tous les autres endpoints nécessitent une authentification

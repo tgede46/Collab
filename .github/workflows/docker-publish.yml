@@ -27,7 +27,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != ''
+        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -45,7 +45,7 @@ jobs:
             type=raw,value=latest
 
       - name: Build and push Docker image
-        if: secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != ''
+        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,7 +58,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Build Docker image (no push)
-        if: secrets.DOCKER_USERNAME == '' || secrets.DOCKER_PASSWORD == ''
+        if: ${{ secrets.DOCKER_USERNAME == '' || secrets.DOCKER_PASSWORD == '' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -70,5 +70,5 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Image digest
-        if: secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != ''
+        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
         run: echo ${{ steps.meta.outputs.digest }}

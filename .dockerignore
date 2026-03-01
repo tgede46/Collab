@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Build
+build/
+.gradle/
+target/
+bin/
+*.jar
+*.class
+
+# Test
+src/test
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+compose.yaml
+
+# Documentation
+README.md
+HELP.md
+*.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+Jenkinsfile
+
+# Scripts inutiles
+gitflow/
+gitflow-installer.sh
+*.sh
+
+# OS
+.DS_Store
+Thumbs.db
+.env
